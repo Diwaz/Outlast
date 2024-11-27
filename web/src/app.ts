@@ -1,5 +1,6 @@
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
 interface Character {
   x: number;
   y: number;
@@ -7,6 +8,22 @@ interface Character {
   height: number;
   color: string;
   speed: number;
+}
+
+interface Canvas {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+  color: string;
+}
+
+interface Wall {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+  color: string;
 }
 interface Ammo {
   x: number;
@@ -39,6 +56,22 @@ interface Target {
 const target: Target = {
   x: 0,
   y: 0,
+};
+
+const customMap: Canvas = {
+  x: 0,
+  y: 0,
+  width: 0,
+  height: 0,
+  color: "red",
+};
+
+const wall: Wall = {
+  x: 100,
+  y: 100,
+  height: 20,
+  width: 100,
+  color: "grey",
 };
 const ammolist: Ammo[] = [];
 // Define the character
@@ -74,11 +107,15 @@ function drawEnemy(): void {
   ctx.fillStyle = enemy.color;
   ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
 }
-const xax = document.querySelector(".x");
-const yax = document.querySelector(".y");
-const targetXY = document.querySelector(".target");
+function drawWall(): void {
+  ctx.fillStyle = wall.color;
+  ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+}
+const xax = document.querySelector(".x") as HTMLElement;
+const yax = document.querySelector(".y") as HTMLElement;
+const targetXY = document.querySelector(".target") as HTMLElement;
 
-const charXY = document.querySelector(".characterXY");
+const charXY = document.querySelector(".characterXY") as HTMLElement;
 
 // Clear the canvas
 function clearCanvas(): void {
@@ -106,11 +143,25 @@ window.addEventListener("mousemove", (e) => {
   crosshair.x = e.x;
   crosshair.y = e.y;
 
-  xax?.textContent = `x-axis ` + e.x;
-  yax?.textContent = `y-axis ` + e.y;
-  targetXY?.textContent = `TARGET : ${e.x}, ${e.y}`;
+  xax.textContent = `x-axis ` + e.x;
+  yax.textContent = `y-axis ` + e.y;
+  targetXY.textContent = `TARGET : ${e.x}, ${e.y}`;
 });
 
+function fetchMapData() {
+  fetch("../src/map.json")
+    .then((response) => response.json())
+    .then((data) => {
+      customMap.width = data.canvas[0].width;
+      customMap.height = data.canvas[0].height;
+      customMap.color = data.canvas[0].color;
+    })
+    .catch((error) => console.log(error));
+}
+function drawMap() {
+  ctx.fillStyle = customMap.color;
+  ctx.fillRect(customMap.x, customMap.y, customMap.width, customMap.height);
+}
 function drawTarget(): void {
   ctx.fillStyle = crosshair.color;
   ctx.fillRect(crosshair.x, crosshair.y, crosshair.width, crosshair.height);
@@ -126,27 +177,30 @@ function spawnAmmo(): void {
   };
   ammolist.push(newAmmo);
 }
-function detectCollision(): void {
-  // console.log("sdfsd");
-  //
-  // let enemyHitbox = enemy.x
-  // if (character.x == enemy.x && character.y == enemy.y) {
-  //   console.log("bulls eyeeeeee");
-  // }
-  // for (let i = ammolist.length - 1; i >= 0; i--) {
-  //   const ammo = ammolist[i];
-  //   // y=y-speed
-  //   //
-  //   if (
-  //     ammo.y + ammo.height < 0 ||
-  //     ammo.y > 590 ||
-  //     ammo.x < 0 ||
-  //     ammo.x > 850
-  //   ) {
-  //     ammolist.splice(i, 1);
-  //   }
-  // }
-}
+
+// function detectCollision(): void {
+//   // console.log("sdfsd");
+//   //
+//   // let enemyHitbox = enemy.x
+//   // if (character.x == enemy.x && character.y == enemy.y) {
+//   //   console.log("bulls eyeeeeee");
+//   // }
+//   // for (let i = ammolist.length - 1; i >= 0; i--) {
+//   //   const ammo = ammolist[i];
+//   //   // y=y-speed
+//   //   //
+//   //   if (
+//   //     ammo.y + ammo.height < 0 ||
+//   //     ammo.y > 590 ||
+//   //     ammo.x < 0 ||
+//   //     ammo.x > 850
+//   //   ) {
+//   //     ammolist.splice(i, 1);
+//   //   }
+//   // }
+// }
+
+//
 function updateAmmo(): void {
   for (let i = ammolist.length - 1; i >= 0; i--) {
     const ammo = ammolist[i];
@@ -202,16 +256,10 @@ function updateCharacter(): void {
     Math.min(canvas.height - character.height, character.y),
   );
 
-  charXY?.textContent = `X: ${parseInt(character.x)}  y: ${parseInt(character.y)}`;
+  charXY.textContent = `X: ${Math.round(character.x)}  y: ${Math.round(character.y)}`;
 }
 
 function updateEnemy(): void {
-  // if (keys["ArrowUp"]) character.y -= character.speed;
-  // if (keys["ArrowDown"]) character.y += character.speed;
-  // if (keys["ArrowLeft"]) character.x -= character.speed;
-  // if (keys["ArrowRight"]) character.x += character.speed;
-
-  // Prevent the character from leaving the canvas
   character.x = Math.max(
     0,
     Math.min(canvas.width - character.width, character.x),
@@ -223,34 +271,45 @@ function updateEnemy(): void {
   } else {
     enemy.x += enemy.speed;
   }
-  // enemy.x += enemy.speed;
-  // //
-  // let i = 100;
-  // while (i < 20) {
-  //   if (i < 5) enemy.x += enemy.speed;
-  //   if (i > 5 && i < 10) enemy.y -= enemy.speed;
-  //   if (i > 10 && i < 15) enemy.x -= enemy.speed;
-  //   if (i > 15 && i < 20) enemy.y += enemy.speed;
-  //   i++;
-  //   console.log(i);
-  // }
   character.y = Math.max(
     0,
     Math.min(canvas.height - character.height, character.y),
   );
 }
 // Game loop
+
+let devMode: boolean = false;
+let gameMode: boolean = true;
+
+// const devBtn = document.querySelector(".mapMode");
+// const gameBtn = document.querySelector(".devMode");
+// devBtn?.addEventListener("click", (e) => {
+//   gameMode = false;
+
+//   devBtn?.style = "display:none";
+//   gameBtn?.style = "display:flex";
+// });
+
+// gameBtn?.addEventListener("click", (e) => {
+//   gameMode = true;
+//   devBtn?.style = "display:flex";
+//   gameBtn?.style = "display:none";
+// });
+
+fetchMapData();
 function gameLoop(): void {
   clearCanvas();
 
   updateCharacter();
-  detectCollision();
   updateEnemy();
   updateAmmo();
+
+  drawMap();
   drawTarget();
   drawCharacter();
   drawEnemy();
   drawAmmo();
+  drawWall();
   requestAnimationFrame(gameLoop);
 }
 
