@@ -76,8 +76,8 @@ const wall: Wall = {
 const ammolist: Ammo[] = [];
 // Define the character
 const character: Character = {
-  x: 150,
-  y: 100,
+  x: 0,
+  y: 0,
   width: 50,
   height: 50,
   color: "blue",
@@ -276,6 +276,19 @@ function updateEnemy(): void {
     Math.min(canvas.height - character.height, character.y),
   );
 }
+function updateWall(): void {
+  if (
+    wall.x + wall.width > character.x &&
+    wall.y + wall.height > character.y &&
+    wall.y < character.y + character.height &&
+    wall.x < character.x + character.width
+  ) {
+    character.color = "red";
+  } else {
+    character.color = "blue";
+  }
+}
+
 // Game loop
 
 let devMode: boolean = false;
@@ -300,10 +313,10 @@ fetchMapData();
 function gameLoop(): void {
   clearCanvas();
 
+  updateWall();
   updateCharacter();
   updateEnemy();
   updateAmmo();
-
   drawMap();
   drawTarget();
   drawCharacter();
