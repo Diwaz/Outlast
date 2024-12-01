@@ -284,8 +284,18 @@ function updateWall(): void {
     wall.x < character.x + character.width
   ) {
     character.color = "red";
-  } else {
-    character.color = "blue";
+    if (character.x + character.width < wall.x + 5) {
+      character.x -= 1;
+    } else if (character.x + 5 > wall.x + wall.width) {
+      console.log("whywhywhy");
+      character.x += 1;
+    } else if (character.y + character.height > wall.y + wall.height) {
+      character.y += 1;
+    } else if (character.y + character.height < wall.y) {
+      character.y -= 1;
+    } else {
+      character.y -= 1;
+    }
   }
 }
 
