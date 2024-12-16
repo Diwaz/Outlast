@@ -18,6 +18,14 @@ interface Canvas {
   color: string;
 }
 
+interface Camera {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+  color: string;
+}
+
 interface Wall {
   x: number;
   y: number;
@@ -66,6 +74,13 @@ const customMap: Canvas = {
   color: "red",
 };
 
+const cameraView: Camera = {
+  x: 0,
+  y: 0,
+  width: 200,
+  height: 200,
+  color: "red",
+};
 const wall: Wall = {
   x: 100,
   y: 100,
@@ -100,8 +115,20 @@ const crosshair: Crosshair = {
 };
 // Draw the character
 function drawCharacter(): void {
+  // ctx.fillStyle = "rgba(100,100,100,0.5)";
+  // ctx.globalAlpha = 0.5;
   ctx.fillStyle = character.color;
   ctx.fillRect(character.x, character.y, character.width, character.height);
+}
+function drawCamera(): void {
+  ctx.fillStyle = "rgba(100,100,100,0.5)";
+
+  ctx.fillRect(
+    character.x - cameraView.width / 2 + character.width / 2,
+    character.y - cameraView.height / 2 + character.height / 2,
+    cameraView.width,
+    cameraView.height,
+  );
 }
 function drawEnemy(): void {
   ctx.fillStyle = enemy.color;
@@ -160,7 +187,19 @@ function fetchMapData() {
 }
 function drawMap() {
   ctx.fillStyle = customMap.color;
-  ctx.fillRect(customMap.x, customMap.y, customMap.width, customMap.height);
+  var img = new Image();
+
+  img.src = "../src/desert.jpg";
+  // img.onload = function () {
+  ctx.drawImage(
+    img,
+    customMap.x,
+    customMap.y,
+    customMap.width,
+    customMap.height,
+  );
+  // };
+  // ctx.fillRect(customMap.x, customMap.y, customMap.width, customMap.height)
 }
 function drawTarget(): void {
   ctx.fillStyle = crosshair.color;
@@ -209,9 +248,15 @@ function updateAmmo(): void {
     let diffY = target.y - character.y;
     let diffX = target.x - character.x;
 
+    let targetAngle = Math.atan2(diffY, diffX) * (180 / 3.14);
     let dy = ammo.y + 2.5 - (enemy.y + 25);
     let dx = ammo.x + 2.5 - (enemy.x + 25);
     let distance = Math.sqrt(dy * dy + dx * dx);
+    const angleHTML = document.querySelector(".angle");
+    angleHTML?.textContent = `angle: ` + targetAngle; // let characterCentre = ((character.x + character.width) / 2);
+    // let targetCenterX = ((crosshair.x + crosshair.width) / 2);
+    // let base =characterCentre - target.x;
+    // let perpendicular =
     // console.log(distance);
     ammo.y += ammo.speed * diffY;
     ammo.x += ammo.speed * diffX;
@@ -283,11 +328,9 @@ function updateWall(): void {
     wall.y < character.y + character.height &&
     wall.x < character.x + character.width
   ) {
-    character.color = "red";
     if (character.x + character.width < wall.x + 5) {
       character.x -= 1;
     } else if (character.x + 5 > wall.x + wall.width) {
-      console.log("whywhywhy");
       character.x += 1;
     } else if (character.y + character.height > wall.y + wall.height) {
       character.y += 1;
@@ -328,6 +371,7 @@ function gameLoop(): void {
   updateEnemy();
   updateAmmo();
   drawMap();
+  drawCamera();
   drawTarget();
   drawCharacter();
   drawEnemy();
