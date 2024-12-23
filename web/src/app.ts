@@ -77,8 +77,8 @@ const customMap: Canvas = {
 const cameraView: Camera = {
   x: 0,
   y: 0,
-  width: 200,
-  height: 200,
+  width: customMap.width,
+  height: customMap.height,
   color: "red",
 };
 const wall: Wall = {
@@ -119,6 +119,20 @@ function drawCharacter(): void {
   // ctx.globalAlpha = 0.5;
   ctx.fillStyle = character.color;
   ctx.fillRect(character.x, character.y, character.width, character.height);
+
+  // const centerX = character.x - cameraView.x + character.width / 2;
+  // const centerY = character.y - cameraView.y + character.height / 2;
+  // console.log("this changed");
+  // ctx.translate(centerX, centerY);
+  // // ctx.rotate(angle);
+
+  // ctx.fillStyle = character.color;
+  // ctx.fillRect(
+  //   -character.width / 2,
+  //   -character.height / 2,
+  //   character.width,
+  //   character.height,
+  // );
 }
 function drawCamera(): void {
   ctx.fillStyle = "rgba(100,100,100,0.5)";
@@ -128,6 +142,21 @@ function drawCamera(): void {
     character.y - cameraView.height / 2 + character.height / 2,
     cameraView.width,
     cameraView.height,
+  );
+}
+
+function centerCamera(): void {
+  cameraView.x = character.x + character.width / 2 - cameraView.width / 2;
+  cameraView.y = character.y + character.height / 2 - cameraView.height / 2;
+
+  // Clamp the camera to the map boundaries
+  cameraView.x = Math.max(
+    0,
+    Math.min(customMap.width - cameraView.width, cameraView.x),
+  );
+  cameraView.y = Math.max(
+    0,
+    Math.min(customMap.height - cameraView.height, cameraView.y),
   );
 }
 function drawEnemy(): void {
@@ -193,8 +222,8 @@ function drawMap() {
   // img.onload = function () {
   ctx.drawImage(
     img,
-    customMap.x,
-    customMap.y,
+    -cameraView.x,
+    -cameraView.y,
     customMap.width,
     customMap.height,
   );
@@ -370,6 +399,7 @@ function gameLoop(): void {
   updateCharacter();
   updateEnemy();
   updateAmmo();
+  // centerCamera();
   drawMap();
   drawCamera();
   drawTarget();
