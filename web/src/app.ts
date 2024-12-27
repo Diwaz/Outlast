@@ -205,7 +205,7 @@ window.addEventListener("mousemove", (e) => {
 });
 
 function fetchMapData() {
-  fetch("../src/map.json")
+  fetch("/src/map.json")
     .then((response) => response.json())
     .then((data) => {
       customMap.width = data.canvas[0].width;
@@ -216,19 +216,19 @@ function fetchMapData() {
 }
 function drawMap() {
   ctx.fillStyle = customMap.color;
-  var img = new Image();
+//   var img = new Image();
 
-  img.src = "../src/desert.jpg";
-  // img.onload = function () {
-  ctx.drawImage(
-    img,
-    -cameraView.x,
-    -cameraView.y,
-    customMap.width,
-    customMap.height,
-  );
+//   img.src = "../src/desert.jpg";
+//   // img.onload = function () {
+//   ctx.drawImage(
+//     img,
+//     -cameraView.x,
+//     -cameraView.y,
+//     customMap.width,
+//     customMap.height,
+//   );
   // };
-  // ctx.fillRect(customMap.x, customMap.y, customMap.width, customMap.height)
+  ctx.fillRect(customMap.x, customMap.y, customMap.width, customMap.height)
 }
 function drawTarget(): void {
   ctx.fillStyle = crosshair.color;
@@ -245,7 +245,29 @@ function spawnAmmo(): void {
   };
   ammolist.push(newAmmo);
 }
+const socket = new WebSocket("ws://localhost:8000/ws");
 
+socket.onopen = () => {
+  console.log("Connected to the server");
+};
+
+socket.onmessage = (event) => {
+  const message = event.data;
+  console.log("Received:", message);
+  // Display the message in the chat UI
+};
+
+socket.onclose = () => {
+  console.log("Disconnected from the server");
+};
+
+function sendMessage(text:string) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(text);
+    }
+  }
+
+  sendMessage('H')
 // function detectCollision(): void {
 //   // console.log("sdfsd");
 //   //
