@@ -252,8 +252,9 @@ socket.onopen = () => {
 };
 
 socket.onmessage = (event) => {
-  const message = event.data;
+  const message = JSON.parse(event.data);
   console.log("Received:", message);
+  enemy.x+=message.x
   // Display the message in the chat UI
 };
 
@@ -356,21 +357,21 @@ function updateCharacter(): void {
 }
 
 function updateEnemy(): void {
-  character.x = Math.max(
-    0,
-    Math.min(canvas.width - character.width, character.x),
-  );
-  if (enemy.x > 600) {
-    enemy.x -= enemy.speed;
-  } else if (enemy.x < 0) {
-    enemy.x += enemy.speed;
-  } else {
-    enemy.x += enemy.speed;
-  }
-  character.y = Math.max(
-    0,
-    Math.min(canvas.height - character.height, character.y),
-  );
+//   character.x = Math.max(
+//     0,
+//     Math.min(canvas.width - character.width, character.x),
+//   );
+//   if (enemy.x > 600) {
+//     enemy.x -= enemy.speed;
+//   } else if (enemy.x < 0) {
+//     enemy.x += enemy.speed;
+//   } else {
+//     enemy.x += enemy.speed;
+//   }
+//   character.y = Math.max(
+//     0,
+//     Math.min(canvas.height - character.height, character.y),
+//   );
 }
 function updateWall(): void {
   if (
@@ -395,17 +396,23 @@ function updateWall(): void {
 
 // Game loop
 
-let devMode: boolean = false;
+// let devMode: boolean = false;
 let gameMode: boolean = true;
 
-// const devBtn = document.querySelector(".mapMode");
+const sendBtn = document.querySelector("#sendInvite");
+
+const msg = document.querySelector("#invite");
 // const gameBtn = document.querySelector(".devMode");
-// devBtn?.addEventListener("click", (e) => {
+sendBtn?.addEventListener("click", (e) => {
 //   gameMode = false;
 
 //   devBtn?.style = "display:none";
 //   gameBtn?.style = "display:flex";
-// });
+console.log('hhhhhhhh')
+
+socket.send(msg?.value)
+// sendMessage('from here')
+});
 
 // gameBtn?.addEventListener("click", (e) => {
 //   gameMode = true;

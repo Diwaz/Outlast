@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -23,7 +26,36 @@ func newClient(conn *websocket.Conn, manager *Manager) *Client {
 	}
 
 }
+func broadcastMovement(c *Client) {
+	ticker := time.NewTicker(500 * time.Millisecond)
+	defer ticker.Stop()
 
+	x := 0
+	y := 0
+
+	for range ticker.C {
+		payload := map[string]int{
+			"x": x,
+			"y": y,
+		}
+
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			fmt.Println("Error Marshling JSON", err)
+			continue
+		}
+
+		for wsclient := range c.manager.clients {
+			select {
+			case wsclient.egress <- jsonPayload:
+				fmt.Println("sent")
+			default:
+				fmt.Println("Client egress channel is blocked")
+			}
+		}
+		x += 5
+	}
+}
 func (c *Client) readMessage() {
 	defer func() {
 
@@ -45,9 +77,11 @@ func (c *Client) readMessage() {
 		log.Println("MessageType: ", messageType)
 		log.Println("Payload: ", string(payload))
 
-		for wsclient := range c.manager.clients {
-			wsclient.egress <- payload
-		}
+		broadcastMovement(c)
+		// for wsclient := range c.manager.clients {
+		// 	// wsclient.egress <- payload
+
+		// }
 	}
 }
 
