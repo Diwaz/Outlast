@@ -13,16 +13,17 @@ type ClientList map[*Client]bool
 
 type Client struct {
 	connection *websocket.Conn
-
-	manager *Manager
-	egress  chan []byte
+	room       *Room
+	// manager    *Manager
+	egress chan []byte
 }
 
-func newClient(conn *websocket.Conn, manager *Manager) *Client {
+func newClient(conn *websocket.Conn, room *Room) *Client {
 	return &Client{
 		connection: conn,
-		manager:    manager,
-		egress:     make(chan []byte),
+		// manager:    manager,
+		egress: make(chan []byte),
+		room:   room,
 	}
 
 }
@@ -45,7 +46,7 @@ func broadcastMovement(c *Client) {
 			continue
 		}
 
-		for wsclient := range c.manager.clients {
+		for wsclient := range c.room.players {
 			select {
 			case wsclient.egress <- jsonPayload:
 				fmt.Println("sent")
@@ -59,7 +60,7 @@ func broadcastMovement(c *Client) {
 func (c *Client) readMessage() {
 	defer func() {
 
-		c.manager.removeCient(c)
+		c.room.removePlayer(c)
 	}()
 
 	for {
@@ -88,7 +89,7 @@ func (c *Client) readMessage() {
 func (c *Client) writeMessage() {
 	defer func() {
 
-		c.manager.removeCient(c)
+		c.room.removePlayer(c)
 	}()
 
 	for {

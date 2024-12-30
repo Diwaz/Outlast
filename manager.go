@@ -4,16 +4,14 @@ import (
 	"log"
 	"net/http"
 	"sync"
-
-	"github.com/gorilla/websocket"
 )
 
-var (
-	wsUpgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
-)
+// var (
+// 	wsUpgrader = websocket.Upgrader{
+// 		ReadBufferSize:  1024,
+// 		WriteBufferSize: 1024,
+// 	}
+// )
 
 type Manager struct {
 	clients ClientList
@@ -28,17 +26,18 @@ func newManager() *Manager {
 
 func (m *Manager) serveWs(w http.ResponseWriter, r *http.Request) {
 	log.Println("new connection")
-	conn, err := wsUpgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	client := newClient(conn, m)
+	// conn, err := wsUpgrader.Upgrade(w, r, nil)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return
+	// }
 
-	m.addClient(client)
+	// client := newClient(conn, m)
 
-	go client.readMessage()
-	go client.writeMessage()
+	// m.addClient(client)
+
+	// go client.readMessage()
+	// go client.writeMessage()
 }
 
 func (m *Manager) addClient(client *Client) {
