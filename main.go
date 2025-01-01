@@ -12,10 +12,12 @@ func main() {
 
 func setupAPI() {
 	// manager := newManager()
-	room := newRoom()
+	// room := newRoom()
 	http.Handle("/", http.FileServer(http.Dir("./web/dist")))
 
-	http.HandleFunc("/create-room", room.handleRoom)
+	http.HandleFunc("/create-room", handleCreateRoom)
+
+	http.HandleFunc("/ws", handleWS)
 	//serve map json
 	http.Handle("/src/", http.StripPrefix("/src/", http.FileServer(http.Dir("./web/src"))))
 	// http.HandleFunc("/ws", manager.serveWs)

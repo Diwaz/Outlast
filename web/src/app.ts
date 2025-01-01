@@ -245,30 +245,8 @@ function spawnAmmo(): void {
   };
   ammolist.push(newAmmo);
 }
-const socket = new WebSocket("ws://localhost:8000/ws");
-
-socket.onopen = () => {
-  console.log("Connected to the server");
-};
-
-socket.onmessage = (event) => {
-  const message = JSON.parse(event.data);
-  console.log("Received:", message);
-  enemy.x+=message.x
-  // Display the message in the chat UI
-};
-
-socket.onclose = () => {
-  console.log("Disconnected from the server");
-};
-
-function sendMessage(text:string) {
-    if (socket.readyState === WebSocket.OPEN) {
-      socket.send(text);
-    }
-  }
-
-  sendMessage('H')
+// const socket = new WebSocket("ws://localhost:8000/create-room");
+  // sendMessage('H')
 // function detectCollision(): void {
 //   // console.log("sdfsd");
 //   //
@@ -410,7 +388,31 @@ sendBtn?.addEventListener("click", (e) => {
 //   gameBtn?.style = "display:flex";
 console.log('hhhhhhhh')
 
-socket.send(msg?.value)
+const socket = new WebSocket("ws://localhost:8000/create-room");
+
+socket.onopen = () => {
+  console.log("Connected to the server");
+};
+
+socket.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  console.log("Received:", message);
+  // enemy.x+=message.x
+  // Display the message in the chat UI
+};
+
+socket.onclose = () => {
+  console.log("Disconnected from the server");
+};
+
+function sendMessage(text:string) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(text);
+    }
+  }
+
+
+// socket.send(msg?.value)
 // sendMessage('from here')
 });
 
